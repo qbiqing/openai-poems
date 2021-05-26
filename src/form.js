@@ -14,7 +14,17 @@ class PromptForm extends React.Component {
     }
   
     handleSubmit(event) {
-      alert('Prompt submitted: ' + this.state.value);
+    fetch('https://api.openai.com/v1/engines/davinci/completions', {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            prompt: this.state.value,
+            max_tokens: 26
+        })
+    });
       event.preventDefault();
     }
   

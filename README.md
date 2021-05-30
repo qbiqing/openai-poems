@@ -32,6 +32,9 @@ I used the following parameters to make creative poems:
 
 The engine used is the davinci model.
 
+OpenAI API reference: https://beta.openai.com/docs/api-reference/introduction<br/>
+Can experiment on Playground: https://beta.openai.com/playground
+
 ## Some fun examples
 <img src="assets/life-poem.png" alt="life" height="400"/>
 <br/>

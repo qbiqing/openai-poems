@@ -42,5 +42,7 @@ Can experiment on Playground: https://beta.openai.com/playground
 <br/>
 <img src="assets/war-poem.png" alt="war" height="400"/>
 <br/>
-<img src="assets/cherry-blossoms-poem.png" alt="cherry-blossoms" height="400"/>
+
+Updated with customization options:<br/>
+<img src="assets/age-poem.png" alt="age" height="360"/>
 

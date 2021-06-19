@@ -3,14 +3,24 @@ import React from 'react';
 class PromptForm extends React.Component {
     constructor(props) {
       super(props);
-      this.state = {value: ''};
+      this.state = {value: '', length: 60, chaos: 0.6};
   
-      this.handleChange = this.handleChange.bind(this);
+      this.handleChangePrompt = this.handleChangePrompt.bind(this);
+      this.handleChangeMaxLength = this.handleChangeMaxLength.bind(this);
+      this.handleChangeChaos = this.handleChangeChaos.bind(this);
       this.handleSubmit = this.handleSubmit.bind(this);
     }
   
-    handleChange(event) {
+    handleChangePrompt(event) {
       this.setState({value: event.target.value});
+    }
+
+    handleChangeMaxLength(event) {
+      this.setState({length: event.target.value});
+    }
+
+    handleChangeChaos(event) {
+      this.setState({chaos: event.target.value});
     }
   
     handleSubmit(event) {
@@ -23,12 +33,12 @@ class PromptForm extends React.Component {
         },
         body: JSON.stringify({
             prompt: 'Poem about ' + this.state.value + ':\n',
-            max_tokens: 60,
-            temperature: 0.6,
+            max_tokens: parseInt(this.state.length),
+            temperature: parseFloat(this.state.chaos),
             top_p: 1,
             frequency_penalty: 0.5,
             presence_penalty: 0.3,
-            stop: ['###']
+            stop: ["###"]
         })
       }).then(response => response.json())
         .then(data => this.setState({data: data}));
@@ -42,13 +52,29 @@ class PromptForm extends React.Component {
           <form onSubmit={this.handleSubmit}>
             <label>
               Enter prompt of one or more words: <br/>
-              <input type="text" value={this.state.value} onChange={this.handleChange} />
+              <input type="text" value={this.state.value} onChange={this.handleChangePrompt} />
+              <br/>
+              <br/>
             </label>
+            <label>
+              Max length of poem (optional): <br/>
+              <input type="text" value={this.state.length} onChange={this.handleChangeMaxLength} />
+              <br/>
+            </label>
+            <label>
+              Adjust chaos from 0 to 1 (optional): <br/>
+              <input type="text" value={this.state.chaos} onChange={this.handleChangeChaos} />
+              <br/>
+            </label>
+            <br/>
             <input type="submit" value="Submit" />
           </form>
           <br/>
           <div className="poem">
             {this.state.data &&
+              this.state.data.choices &&
+              this.state.data.choices.length > 0 &&
+              this.state.data.choices[0].text &&
               <div>
                   {this.state.data.choices[0].text.split('\n').map((i,key) => {
                       return <div key={key}>{i}</div>;

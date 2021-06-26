@@ -1,11 +1,18 @@
 import React from 'react';
+import haiku_preset from './presets/haiku.js';
 
 class PromptForm extends React.Component {
     constructor(props) {
       super(props);
-      this.state = {value: '', length: 60, chaos: 0.6};
+      this.state = {
+        value: '',
+        length: 60,
+        chaos: 0.6,
+        form: 'free-verse'
+      };
   
       this.handleChangePrompt = this.handleChangePrompt.bind(this);
+      this.handleChangePoemForm = this.handleChangePoemForm.bind(this);
       this.handleChangeMaxLength = this.handleChangeMaxLength.bind(this);
       this.handleChangeChaos = this.handleChangeChaos.bind(this);
       this.handleSubmit = this.handleSubmit.bind(this);
@@ -13,6 +20,15 @@ class PromptForm extends React.Component {
   
     handleChangePrompt(event) {
       this.setState({value: event.target.value});
+    }
+
+    handleChangePoemForm(event) {
+      this.setState({form: event.target.value});
+
+      // Set a shorter length for Haikus
+      if (event.target.value == "haiku") {
+        this.setState({length: 40});
+      }
     }
 
     handleChangeMaxLength(event) {
@@ -24,6 +40,29 @@ class PromptForm extends React.Component {
     }
   
     handleSubmit(event) {
+      var payload = {
+        max_tokens: parseInt(this.state.length),
+        temperature: parseFloat(this.state.chaos),
+        top_p: 1,
+        frequency_penalty: 0.5,
+        presence_penalty: 0.3,
+      };
+
+      if (this.state.form == "haiku") {
+        payload = {
+          ...payload,
+          prompt: haiku_preset + 'Haiku about ' + this.state.value + ':',
+          stop: ["###", "Haiku"]
+        }
+      } else {
+        payload = {
+          ...payload,
+          prompt: 'Poem about ' + this.state.value + ':\n',
+          stop: ["###"]
+        }
+      }
+
+      console.log(payload)
       fetch('https://api.openai.com/v1/engines/davinci/completions', {
         method: 'POST',
         headers: {
@@ -31,15 +70,7 @@ class PromptForm extends React.Component {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer <INSERT YOUR API KEY>'
         },
-        body: JSON.stringify({
-            prompt: 'Poem about ' + this.state.value + ':\n',
-            max_tokens: parseInt(this.state.length),
-            temperature: parseFloat(this.state.chaos),
-            top_p: 1,
-            frequency_penalty: 0.5,
-            presence_penalty: 0.3,
-            stop: ["###"]
-        })
+        body: JSON.stringify(payload)
       }).then(response => response.json())
         .then(data => this.setState({data: data}));
 
@@ -50,6 +81,15 @@ class PromptForm extends React.Component {
       return (
         <div className="form-and-poem">
           <form onSubmit={this.handleSubmit}>
+            <label>
+              Form: <br/>
+              <select value={this.state.form} onChange={this.handleChangePoemForm}>
+                <option value="free-verse">free verse</option>
+                <option value="haiku">haiku</option>
+              </select>
+              <br/>
+              <br/>
+            </label>
             <label>
               Enter prompt of one or more words: <br/>
               <input type="text" value={this.state.value} onChange={this.handleChangePrompt} />
